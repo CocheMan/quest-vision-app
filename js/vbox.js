@@ -139,10 +139,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             handleCall(call);
         });
 
-        // Listen for incoming Data Connections (usually Host receiving from Guests)
+        // Listen for incoming Data Connections (usually Host receiving from Guests, or Guests bridging to other Guests)
         peer.on('connection', (conn) => {
             dataConnections.push(conn);
             setupDataConnection(conn);
+
+            // Si soy el anfitrión, paso la "lista de asistencia" actual al recién llegado
+            if (mode === 'host') {
+                conn.on('open', () => {
+                    const uniquePeers = [...new Set(dataConnections.map(c => c.peer))].filter(p => p !== conn.peer && p !== peer.id);
+                    if (uniquePeers.length > 0) {
+                        conn.send({ type: 'peer-list', peers: uniquePeers });
+                    }
+                });
+            }
         });
 
     } catch (error) {
@@ -310,6 +320,24 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (remoteHand) {
                     remoteHand.style.display = data.state ? 'inline-block' : 'none';
                 }
+            }
+            else if (data.type === 'peer-list') {
+                // Recibimos la lista de los que ya están en la sala. ¡Hay que llamarlos a todos!
+                data.peers.forEach(otherPeerId => {
+                    // Evitamos marcarnos a nosotros mismos o a gente que ya nos marcó
+                    if (!peer.connections[otherPeerId]) {
+                        console.log("Mesh Networking: Llamando a otro invitado secreto: " + otherPeerId);
+                        
+                        // Iniciar videollamada cruzada
+                        const call = peer.call(otherPeerId, localStream);
+                        handleCall(call);
+
+                        // Iniciar conexión de datos para chat/títulos cruzada
+                        const meshConn = peer.connect(otherPeerId);
+                        dataConnections.push(meshConn);
+                        setupDataConnection(meshConn);
+                    }
+                });
             }
         });
 

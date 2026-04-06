@@ -1,0 +1,794 @@
+/* =========================================================================
+   Variables & Theme Setup (Meta Quest Style)
+   ========================================================================= */
+:root {
+    /* Colors */
+    --q-bg-dark: #0f1115;
+    --q-bg-panel: rgba(30, 33, 40, 0.4);
+    --q-accent: #00d2ff;
+    --q-accent-glow: rgba(0, 210, 255, 0.5);
+    --q-text-main: #ffffff;
+    --q-text-sub: #b0b3b8;
+
+    /* Accessibility */
+    --q-focus-ring: #ffaa00;
+    /* High contrast focus color */
+
+    /* Glassmorphism */
+    --q-glass-border: rgba(255, 255, 255, 0.1);
+    --q-glass-blur: blur(20px);
+    --q-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+
+    /* Typography */
+    --font-primary: 'Inter', sans-serif;
+}
+
+/* =========================================================================
+   Reset & Base Styles
+   ========================================================================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--q-bg-dark);
+    color: var(--q-text-main);
+    font-family: var(--font-primary);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    /* Prevent scroll on landing if it fits */
+}
+
+/* Accessible focus states */
+*:focus-visible {
+    outline: 3px solid var(--q-focus-ring);
+    outline-offset: 4px;
+    border-radius: 4px;
+}
+
+/* =========================================================================
+   Ambient Background Animation
+   ========================================================================= */
+.ambient-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    overflow: hidden;
+    background: radial-gradient(circle at center, #1b1e26 0%, var(--q-bg-dark) 100%);
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.4;
+    animation: float 20s infinite alternate ease-in-out;
+}
+
+.orb-1 {
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, #3a225c 0%, transparent 70%);
+    top: -100px;
+    left: -100px;
+}
+
+.orb-2 {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, #0e4c6b 0%, transparent 70%);
+    bottom: -150px;
+    right: -50px;
+    animation-delay: -5s;
+}
+
+.orb-3 {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, #00d2ff22 0%, transparent 70%);
+    top: 40%;
+    left: 30%;
+    animation-duration: 25s;
+}
+
+@keyframes float {
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    100% {
+        transform: translate(100px, 50px) scale(1.1);
+    }
+}
+
+/* =========================================================================
+   Main Container Layout
+   ========================================================================= */
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 60px;
+    width: 100%;
+    max-width: 1200px;
+    padding: 40px;
+    z-index: 1;
+}
+
+/* =========================================================================
+   Typography & Header
+   ========================================================================= */
+.welcome-section {
+    text-align: center;
+}
+
+.glitch-text {
+    font-size: 4rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 16px;
+    background: linear-gradient(90deg, #fff, #b0b3b8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+.subtitle {
+    font-size: 1.25rem;
+    color: var(--q-text-sub);
+    font-weight: 300;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.5;
+}
+
+/* =========================================================================
+   Glass Navigation Dock (The Central Bar)
+   ========================================================================= */
+.glass-dock {
+    display: flex;
+    gap: 24px;
+    background: var(--q-bg-panel);
+    backdrop-filter: var(--q-glass-blur);
+    -webkit-backdrop-filter: var(--q-glass-blur);
+    border: 1px solid var(--q-glass-border);
+    border-radius: 24px;
+    padding: 20px;
+    box-shadow: var(--q-shadow);
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Interactive Dock Items */
+.dock-item {
+    position: relative;
+    background: transparent;
+    border: none;
+    color: var(--q-text-main);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 24px;
+    border-radius: 16px;
+    cursor: pointer;
+    text-align: left;
+    min-width: 220px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+/* Large hit area for accessibility */
+.dock-item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    border: 1px solid transparent;
+    transition: border-color 0.3s;
+    z-index: 0;
+}
+
+.dock-item:hover,
+.dock-item:focus {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-5px);
+}
+
+.dock-item:hover::before,
+.dock-item:focus::before {
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.icon-container {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+.dock-icon {
+    font-size: 32px;
+    color: var(--q-accent);
+}
+
+.item-content {
+    z-index: 1;
+}
+
+.item-content h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.item-content p {
+    font-size: 0.9rem;
+    color: var(--q-text-sub);
+}
+
+/* Subtle inner glow on hover imitating VR selection pointers */
+.hover-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, var(--q-accent-glow) 0%, transparent 70%);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.3s ease, width 0.3s ease, height 0.3s ease;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.dock-item:hover .hover-glow {
+    opacity: 1;
+    width: 250px;
+    height: 250px;
+}
+
+.dock-item:hover .icon-container {
+    background: var(--q-accent);
+    color: #000;
+    box-shadow: 0 0 15px var(--q-accent-glow);
+}
+
+.dock-item:hover .dock-icon {
+    color: #000;
+}
+
+
+/* =========================================================================
+   Interactive Status Hint
+   ========================================================================= */
+.status-hint {
+    background: rgba(30, 33, 40, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-size: 0.95rem;
+    color: var(--q-text-sub);
+    opacity: 0.8;
+    transition: opacity 0.3s, color 0.3s;
+    text-align: center;
+    max-width: 600px;
+}
+
+.status-hint.active {
+    opacity: 1;
+    color: var(--q-text-main);
+}
+
+/* =========================================================================
+   Responsiveness
+   ========================================================================= */
+@media (max-width: 1024px) {
+    .glass-dock {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .dock-item {
+        min-width: calc(50% - 12px);
+    }
+}
+
+@media (max-width: 600px) {
+    .glitch-text {
+        font-size: 2.5rem;
+    }
+
+    .dock-item {
+        min-width: 100%;
+    }
+
+    main {
+        padding: 20px;
+    }
+}
+
+/* =========================================================================
+   Vbox Layout Specifics
+   ========================================================================= */
+
+.vbox-body {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Glass Panels (Reusable class over dock) */
+.glass-panel {
+    background: var(--q-bg-panel);
+    backdrop-filter: var(--q-glass-blur);
+    -webkit-backdrop-filter: var(--q-glass-blur);
+    border: 1px solid var(--q-glass-border);
+    box-shadow: var(--q-shadow);
+}
+
+/* Header */
+.vbox-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    z-index: 10;
+    border-radius: 0 0 24px 24px;
+    border-top: none;
+}
+
+.meeting-info {
+    text-align: center;
+}
+
+.meeting-info h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.badge {
+    background-color: rgba(255, 60, 60, 0.2);
+    color: #ff5555;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border: 1px solid rgba(255, 60, 60, 0.5);
+    animation: pulseRecording 2s infinite;
+}
+
+@keyframes pulseRecording {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.btn-icon {
+    background: transparent;
+    border: none;
+    color: var(--q-text-main);
+    cursor: pointer;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background 0.3s;
+}
+
+.btn-icon:hover,
+.btn-icon:focus-visible {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Main Area Grid (Videos + Sidebar) */
+.vbox-main {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 24px;
+    padding: 24px;
+    flex: 1;
+    min-height: 0;
+    /* Important for flex-child scrolling */
+    z-index: 5;
+}
+
+/* Video Grid Area */
+.video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+    align-content: stretch;
+}
+
+.video-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--q-glass-border);
+    border-radius: 16px;
+    aspect-ratio: 16 / 9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.video-card video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    background-color: #000;
+}
+
+.video-card .participant-info {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    padding: 6px 12px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fff;
+    z-index: 2;
+}
+
+.raise-hand-indicator {
+    color: var(--q-warning);
+    font-size: 1.2rem;
+    animation: bounce 1s infinite alternate;
+}
+
+@keyframes bounce {
+    from {
+        transform: translateY(0);
+    }
+
+    to {
+        transform: translateY(-3px);
+    }
+}
+
+/* Modals */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeInModal 0.3s ease forwards;
+}
+
+.modal-content {
+    background: rgba(40, 42, 54, 0.85);
+    padding: 30px;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 500px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes fadeInModal {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* User avatar placeholder */
+.user-avatar {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: var(--q-text-sub);
+    transition: all 0.3s;
+    z-index: 2;
+}
+
+.user-avatar .material-icons-round {
+    font-size: 48px;
+    color: var(--q-text-sub);
+}
+
+/* Active Speaker visual cue */
+.user-avatar.active-speaker {
+    border-color: var(--q-primary);
+    box-shadow: 0 0 15px var(--q-primary);
+}
+
+/* --- Real-Time Subtitles --- */
+.subtitles-overlay {
+    position: absolute;
+    bottom: 15%;
+    /* Sit slightly above the bottom controls */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    max-width: 800px;
+    text-align: center;
+    pointer-events: none;
+    /* Let clicks pass through to the videos */
+    z-index: 100;
+    transition: opacity 0.3s ease;
+}
+
+.subtitles-overlay .subtitle-text {
+    display: inline-block;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    color: #ffffff;
+    font-size: 1.5rem;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 12px;
+    line-height: 1.4;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    animation: fadeInSubtitle 0.3s ease forwards;
+}
+
+@keyframes fadeInSubtitle {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Active Speaker visual cue */
+.active-speaker {
+    border-color: var(--q-accent);
+    box-shadow: 0 0 20px var(--q-accent-glow);
+}
+
+.participant-info {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 6px 12px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+}
+
+.icon-mic {
+    font-size: 16px;
+}
+
+.icon-mic.on {
+    color: var(--q-accent);
+}
+
+.icon-mic.off {
+    color: #ff5555;
+}
+
+/* Subtitles/Chat Sidebar */
+.sidebar {
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.sidebar-header {
+    padding: 16px;
+    border-bottom: 1px solid var(--q-glass-border);
+}
+
+.tabs {
+    display: flex;
+    margin-top: 12px;
+    gap: 8px;
+}
+
+.tab {
+    background: transparent;
+    border: none;
+    color: var(--q-text-sub);
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    flex: 1;
+    transition: all 0.3s;
+}
+
+.tab.active {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--q-text-main);
+    font-weight: 600;
+}
+
+.sidebar-content {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.message {
+    font-size: 0.95rem;
+    line-height: 1.4;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+}
+
+.message.system {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--q-accent);
+    background: transparent;
+    font-style: italic;
+}
+
+.sidebar-footer {
+    padding: 16px;
+    border-top: 1px solid var(--q-glass-border);
+    display: flex;
+    gap: 8px;
+}
+
+.sidebar-footer input {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--q-glass-border);
+    color: var(--q-text-main);
+    padding: 12px;
+    border-radius: 8px;
+    font-family: inherit;
+}
+
+.sidebar-footer input:focus {
+    outline: 2px solid var(--q-focus-ring);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-send {
+    background: var(--q-accent);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    width: 44px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.btn-send:hover {
+    transform: scale(1.05);
+}
+
+/* Control Bar (overriding glass-dock for bottom fix) */
+.controls-bar {
+    border-radius: 24px 24px 0 0;
+    border-bottom: none;
+    justify-content: center;
+    padding: 16px 24px;
+    z-index: 10;
+}
+
+.control-btn {
+    min-width: 80px;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+}
+
+.control-btn .icon-container {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+}
+
+.control-btn.toggle-off .icon-container {
+    background: rgba(255, 60, 60, 0.2);
+    border-color: rgba(255, 60, 60, 0.3);
+    color: #ff5555;
+}
+
+.control-btn.toggle-off .dock-icon {
+    color: #ff5555;
+}
+
+.btn-danger .icon-container {
+    background: #ff3333;
+    color: #fff;
+}
+
+.btn-danger .dock-icon {
+    color: #fff;
+}
+
+.btn-danger:hover .icon-container {
+    background: #ff5555;
+    box-shadow: 0 0 20px rgba(255, 51, 51, 0.5);
+}
+
+/* Responsiveness */
+@media (max-width: 900px) {
+    .vbox-main {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr 250px;
+    }
+
+    .sidebar {
+        min-height: 250px;
+    }
+}
+
+@media (max-width: 600px) {
+    .controls-bar {
+        gap: 8px;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        justify-content: flex-start;
+    }
+
+    .control-btn {
+        min-width: 60px;
+    }
+}

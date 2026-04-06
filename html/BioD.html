@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quest Vision - BioD Chat</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/BioD.css">
+</head>
+
+<body>
+    <!-- Ambient Background -->
+    <div class="ambient-background">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <div class="app-container">
+        
+        <!-- Sidebar: Lista de chats -->
+        <aside class="sidebar">
+            <header class="sidebar-header">
+                <button class="back-btn" onclick="window.location.href='index.html'" aria-label="Volver al inicio">
+                    <span class="material-icons-round">arrow_back</span>
+                </button>
+                <h2>BioD <span class="tag">Alpha</span></h2>
+            </header>
+
+            <div class="search-bar">
+                <span class="material-icons-round search-icon">search</span>
+                <input type="text" placeholder="Buscar amigos..." aria-label="Buscar amigos">
+            </div>
+
+            <div class="chat-list">
+                <!-- Chat Item 1 (Active) -->
+                <div class="chat-item active">
+                    <img src="https://i.pravatar.cc/150?img=47" alt="María" class="avatar">
+                    <div class="chat-item-info">
+                        <div class="chat-item-top">
+                            <span class="name">María López</span>
+                            <span class="time">15:42</span>
+                        </div>
+                        <p class="last-msg">¡Sí, nos vemos mañana en Vbox!</p>
+                    </div>
+                </div>
+
+                <!-- Chat Item 2 -->
+                <div class="chat-item">
+                    <img src="https://i.pravatar.cc/150?img=11" alt="Carlos" class="avatar">
+                    <div class="chat-item-info">
+                        <div class="chat-item-top">
+                            <span class="name">Carlos Gómez</span>
+                            <span class="time">Ayer</span>
+                        </div>
+                        <p class="last-msg">¿Pudiste revisar el documento?</p>
+                    </div>
+                </div>
+
+                <!-- Chat Item 3 -->
+                <div class="chat-item">
+                    <img src="https://i.pravatar.cc/150?img=32" alt="Ana" class="avatar">
+                    <div class="chat-item-info">
+                        <div class="chat-item-top">
+                            <span class="name">Ana Silva</span>
+                            <span class="time">Lun</span>
+                        </div>
+                        <p class="last-msg">Gracias por la ayuda de hoy.</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="chat-area">
+            <header class="chat-header">
+                <div class="chat-user-info">
+                    <img src="https://i.pravatar.cc/150?img=47" alt="María" class="avatar">
+                    <div>
+                        <h3 class="name">María López</h3>
+                        <span class="status">En línea</span>
+                    </div>
+                </div>
+                <div class="chat-actions">
+                    <button class="icon-btn" aria-label="Llamada de voz"><span class="material-icons-round">call</span></button>
+                    <button class="icon-btn" aria-label="Videollamada"><span class="material-icons-round">videocam</span></button>
+                    <button class="icon-btn" aria-label="Opciones"><span class="material-icons-round">more_vert</span></button>
+                </div>
+            </header>
+
+            <div class="messages-container" id="messagesContainer">
+                
+                <div class="message received">
+                    <img src="https://i.pravatar.cc/150?img=47" alt="María" class="msg-avatar">
+                    <div class="bubble">
+                        Hola! ¿Cómo estás? ¿Te conectarás a la reunión de Quest hoy?
+                        <span class="msg-time">15:30</span>
+                    </div>
+                </div>
+
+                <div class="message sent">
+                    <div class="bubble">
+                        ¡Hola! Todo muy bien. Sí, me conectaré en unos 10 minutos.
+                        <span class="msg-time">15:35</span>
+                    </div>
+                </div>
+
+                <div class="message received">
+                    <img src="https://i.pravatar.cc/150?img=47" alt="María" class="msg-avatar">
+                    <div class="bubble">
+                        ¡Perfecto! Yo ya estoy armando la presentación para testear la accesibilidad visual.
+                        <span class="msg-time">15:40</span>
+                    </div>
+                </div>
+                
+                <div class="message received">
+                    <img src="https://i.pravatar.cc/150?img=47" alt="María" class="msg-avatar">
+                    <div class="bubble">
+                        ¡Sí, nos vemos mañana en Vbox!
+                        <span class="msg-time">15:42</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Input Box -->
+            <div class="chat-input-area">
+                <button class="icon-btn"><span class="material-icons-round">mood</span></button>
+                <button class="icon-btn"><span class="material-icons-round">attach_file</span></button>
+                <input type="text" id="chatInput" placeholder="Escribe un mensaje..." autocomplete="off">
+                <button class="icon-btn btn-send" id="btnSend"><span class="material-icons-round">send</span></button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Script for dummy interaction -->
+    <script src="../js/BioD.js"></script>
+</body>
+
+</html>

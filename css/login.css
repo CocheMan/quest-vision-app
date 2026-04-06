@@ -1,0 +1,211 @@
+/* =========================================================================
+   Login Page Specific Styles
+   ========================================================================= */
+
+.login-page-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    width: 100%;
+    z-index: 10;
+}
+
+.glass-modal {
+    background: var(--q-bg-panel);
+    backdrop-filter: var(--q-glass-blur);
+    -webkit-backdrop-filter: var(--q-glass-blur);
+    border: 1px solid var(--q-glass-border);
+    box-shadow: var(--q-shadow);
+    border-radius: 24px;
+    padding: 32px;
+    width: 90%;
+    max-width: 400px;
+    position: relative;
+    margin: 20px;
+}
+
+.btn-close {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    /* Moved to left for "Back" behavior */
+    background: transparent;
+    border: none;
+    color: var(--q-text-sub);
+    cursor: pointer;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s;
+}
+
+.btn-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--q-text-main);
+}
+
+.modal-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.modal-subtitle {
+    font-size: 0.95rem;
+    color: var(--q-text-sub);
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: 12px;
+    color: var(--q-text-sub);
+}
+
+.input-group input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--q-glass-border);
+    color: var(--q-text-main);
+    padding: 14px 14px 14px 44px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: all 0.3s;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: var(--q-accent);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 10px rgba(0, 210, 255, 0.2);
+}
+
+.btn-primary {
+    background: var(--q-accent);
+    color: #000;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: all 0.3s;
+    width: 100%;
+}
+
+.btn-primary:hover,
+.btn-primary:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px var(--q-accent-glow);
+}
+
+.modal-footer {
+    margin-top: 24px;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--q-text-sub);
+}
+
+.btn-text {
+    background: transparent;
+    border: none;
+    color: var(--q-accent);
+    font-weight: 600;
+    cursor: pointer;
+    padding: 4px 8px;
+    font-size: 0.9rem;
+    text-decoration: none;
+}
+
+.btn-text:hover {
+    text-decoration: underline;
+}
+
+/* --- Social Login Alternative Buttons --- */
+.separator-text {
+    text-align: center;
+    color: var(--q-text-sub);
+    font-size: 0.85rem;
+    margin: 16px 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.separator-text::before,
+.separator-text::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--q-glass-border);
+    margin: 0 10px;
+}
+
+.social-login-group {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-social {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--q-glass-border);
+    color: var(--q-text-main);
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-social:hover,
+.btn-social:focus-visible {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.social-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-error {
+    margin-top: 16px;
+    color: #ff5555;
+    background: rgba(255, 85, 85, 0.1);
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    text-align: center;
+    display: none;
+}

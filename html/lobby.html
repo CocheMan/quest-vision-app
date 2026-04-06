@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quest Vision - Vbox Sala de Espera</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/lobby.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Ambient Background MAP -->
+    <div class="ambient-background">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <main class="lobby-container">
+
+        <div class="lobby-modal" role="main">
+            <!-- Back button to index -->
+            <button class="btn-close" id="btnBackIndex" aria-label="Volver al inicio"
+                style="position: absolute; top: 16px; left: 16px;">
+                <span class="material-icons-round">arrow_back</span>
+            </button>
+
+            <h2 class="lobby-title">Vbox Access</h2>
+            <p class="lobby-subtitle" id="lobbyDescription">¿Qué deseas hacer en esta sesión?</p>
+
+            <!-- Main Choice Buttons -->
+            <div class="lobby-actions" id="mainChoiceView">
+                <button class="btn-lobby btn-create" id="btnCreateRoom" aria-label="Crear una nueva reunión">
+                    <span class="material-icons-round">add_circle_outline</span>
+                    <span>Crear Reunión</span>
+                </button>
+
+                <button class="btn-lobby" id="btnJoinRoom" aria-label="Unirse a una reunión existente por código">
+                    <span class="material-icons-round">login</span>
+                    <span>Unirse con Código</span>
+                </button>
+            </div>
+
+            <!-- Join Code Input View (Hidden Initially) -->
+            <div class="join-view" id="joinCodeView">
+                <input type="text" id="joinCodeInput" class="input-code" placeholder="Ej. ABCD-1234"
+                    aria-label="Código de la reunión" autocomplete="off">
+                <div class="join-actions">
+                    <button class="btn-cancel" id="btnCancelJoin">Atrás</button>
+                    <button class="btn-submit-join" id="btnSubmitJoin">Entrar a la Sala</button>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script type="module" src="../js/lobby.js"></script>
+</body>
+
+</html>

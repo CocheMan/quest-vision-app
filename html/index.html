@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quest Vision - Plataforma Inclusiva</title>
+    <!-- Google Fonts for modern typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+
+    <!-- Material Icons for crisp, scalable iconography -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Animated Background Map/Mesh -->
+    <div class="ambient-background">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- Main Container -->
+    <main class="container">
+
+        <!-- Header Actions (Logout) -->
+        <button id="btnLogout" class="btn-icon-top-right" aria-label="Cerrar sesión" title="Cerrar sesión">
+            <span class="material-icons-round">logout</span>
+        </button>
+
+        <!-- Welcome Header -->
+        <header class="welcome-section" aria-label="Sección de bienvenida">
+            <h1 class="glitch-text" data-text="Bienvenido a Quest Vision">Bienvenido a Quest Vision</h1>
+            <p class="subtitle">Conectando mundos, sin barreras. Una experiencia inmersiva para todos.</p>
+        </header>
+
+        <!-- Glassmorphism Navigation / Features Bar -->
+        <nav class="glass-dock" aria-label="Navegación principal">
+
+            <!-- Vbox Section -->
+            <button class="dock-item" id="btnHomeVbox" aria-label="Abrir Vbox: Reuniones estilo Meet y Zoom">
+                <div class="icon-container">
+                    <span class="material-icons-round dock-icon">videocam</span>
+                </div>
+                <div class="item-content">
+                    <h3>Vbox</h3>
+                    <p>Reuniones Inclusivas</p>
+                </div>
+                <div class="hover-glow"></div>
+            </button>
+
+            <!-- Juegos Section -->
+            <button class="dock-item" id="btnHomeJuegos" aria-label="Abrir Juegos adaptados">
+                <div class="icon-container">
+                    <span class="material-icons-round dock-icon">sports_esports</span>
+                </div>
+                <div class="item-content">
+                    <h3>Juegos</h3>
+                    <p>Entretenimiento Ocio</p>
+                </div>
+                <div class="hover-glow"></div>
+            </button>
+
+            <!-- BioD Section -->
+            <button class="dock-item" id="btnHomeBioD" aria-label="Abrir BioD: Red social estilo Facebook">
+                <div class="icon-container">
+                    <span class="material-icons-round dock-icon">forum</span>
+                </div>
+                <div class="item-content">
+                    <h3>BioD</h3>
+                    <p>Comunidad Social</p>
+                </div>
+                <div class="hover-glow"></div>
+            </button>
+
+            <!-- Documentacion Section -->
+            <button class="dock-item" id="btnHomeDocs" aria-label="Abrir Documentación y Guías de Accesibilidad">
+                <div class="icon-container">
+                    <span class="material-icons-round dock-icon">accessibility_new</span>
+                </div>
+                <div class="item-content">
+                    <h3>Documentación</h3>
+                    <p>Guías y Propósito</p>
+                </div>
+                <div class="hover-glow"></div>
+            </button>
+
+        </nav>
+
+        <!-- Interactive Tooltip / Status hint -->
+        <div class="status-hint" id="statusHint" aria-live="polite">
+            Explora las opciones para comenzar. Esta plataforma está optimizada para asistencia visual y auditiva.
+        </div>
+
+        <!-- Info/Disclaimer Modal (Hidden by default) -->
+        <div id="infoModal" class="modal-overlay" style="display: none;">
+            <div class="modal-content glass-panel">
+                <h2 id="modalTitle">Mensaje</h2>
+                <p id="modalBody" style="margin: 20px 0; line-height: 1.6; font-size: 1.1rem; color: #ddd;"></p>
+                <div style="text-align: right;">
+                    <button id="btnModalClose" class="btn-primary" style="padding: 10px 24px;">Aceptar</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="../js/app.js"></script>
+</body>
+
+</html>

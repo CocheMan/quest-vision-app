@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcade Hub - Minijuegos</title>
+    <link rel="stylesheet" href="../css/Games.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="stars-bg"></div>
+
+    <header class="hub-header">
+        <button class="back-btn" onclick="window.location.href='lobby.html'">
+            <i class="fa-solid fa-arrow-left"></i> Volver al Lobby
+        </button>
+        <h1><i class="fa-solid fa-gamepad"></i> Zona Arcade</h1>
+        <p>¡Selecciona un minijuego y diviértete!</p>
+    </header>
+
+    <main class="games-container">
+        <!-- Game 1: VR Shooter -->
+        <div class="game-card vr-card" onclick="openGame('minigame_vr.html')">
+            <div class="card-icon"><i class="fa-solid fa-vr-cardboard"></i></div>
+            <h2>Target Shooter VR</h2>
+            <p>Destruye las esferas en 3D antes de que acabe el tiempo.</p>
+            <span class="tag vr-tag">WebVR</span>
+        </div>
+
+        <!-- Game 2: Snake -->
+        <div class="game-card" onclick="openGame('minigame_snake.html')">
+            <div class="card-icon"><i class="fa-solid fa-staff-snake"></i></div>
+            <h2>Snake Clásico</h2>
+            <p>Come manzanas y crece sin chocar contigo mismo.</p>
+            <span class="tag">Arcade</span>
+        </div>
+
+        <!-- Game 3: Memorama -->
+        <div class="game-card" onclick="openGame('minigame_memory.html')">
+            <div class="card-icon"><i class="fa-solid fa-clone"></i></div>
+            <h2>Memorama</h2>
+            <p>Pon a prueba tu memoria encontrando los pares de cartas.</p>
+            <span class="tag">Mental</span>
+        </div>
+
+        <!-- Game 4: Whack a Mole -->
+        <div class="game-card" onclick="openGame('minigame_whack.html')">
+            <div class="card-icon"><i class="fa-solid fa-hammer"></i></div>
+            <h2>Golpea al Topo</h2>
+            <p>Se rápido y golpea a los topos antes de que se escondan.</p>
+            <span class="tag">Reflejos</span>
+        </div>
+
+        <!-- Game 5: Tic Tac Toe -->
+        <div class="game-card" onclick="openGame('minigame_tictactoe.html')">
+            <div class="card-icon"><i class="fa-solid fa-xmarks-lines"></i></div>
+            <h2>Tic Tac Toe</h2>
+            <p>El clásico juego del Gato. ¡Intenta ganar!</p>
+            <span class="tag">Estrategia</span>
+        </div>
+    </main>
+
+    <script src="../js/Games.js"></script>
+</body>
+</html>

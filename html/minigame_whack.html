@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whack-a-Mole</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --primary: #f59e0b;
+            --secondary: #d97706;
+            --text-light: #f8fafc;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            padding: 20px;
+            cursor: url('data:image/svg+xml;utf8,<svg width="40" height="40" viewBox="0 0 24 24" fill="%23f59e0b" xmlns="http://www.w3.org/2000/svg"><path d="M21 10.5C21 16.299 16.299 21 10.5 21C4.70101 21 0 16.299 0 10.5C0 4.70101 4.70101 0 10.5 0C16.299 0 21 4.70101 21 10.5Z"/></svg>') 20 20, auto; /* Custom rough mallet cursor */
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 20px;
+            background: rgba(255,255,255,0.05);
+            padding: 15px 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .back-btn { background: transparent; color: white; border: none; cursor: pointer; font-size: 1.2rem; transition: color 0.3s; }
+        .back-btn:hover { color: var(--primary); }
+
+        .stats { display: flex; gap: 20px; font-size: 1.3rem; font-weight: 700; color: var(--primary); }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 110px);
+            grid-template-rows: repeat(3, 110px);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 400px) {
+            .game-board {
+                grid-template-columns: repeat(3, 90px);
+                grid-template-rows: repeat(3, 90px);
+            }
+        }
+
+        .hole {
+            background-color: #332115;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 10px 20px rgba(0,0,0,0.8), 0 2px 5px rgba(255,255,255,0.1);
+            border: 4px solid #4a301e;
+        }
+
+        .mole {
+            width: 80%;
+            height: 80%;
+            background-color: #8b5a2b;
+            border-radius: 50% 50% 10% 10%;
+            position: absolute;
+            bottom: -80%; /* hidden initially */
+            left: 10%;
+            transition: bottom 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            box-shadow: inset 0 -10px 15px rgba(0,0,0,0.5);
+            cursor: pointer;
+        }
+
+        .mole.up {
+            bottom: 5px;
+        }
+
+        /* Mole face */
+        .mole::before { content: '😎'; }
+        .mole.hit::before { content: '😵'; }
+
+        .btn-start {
+            margin-top: 30px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #000;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            font-weight: 900;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(245, 158, 11, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .btn-start:hover { transform: scale(1.05); }
+
+        #alert {
+            position: absolute;
+            top: 40%;
+            font-size: 4rem;
+            font-weight: 900;
+            color: #ef4444;
+            text-shadow: 0 0 20px rgba(0,0,0,0.8);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <button class="back-btn" onclick="window.location.href='Games.html'">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <div class="stats">
+            <div>Score: <span id="score">0</span></div>
+            <div>Time: <span id="time">30</span></div>
+        </div>
+    </div>
+
+    <div class="game-board">
+        <div class="hole"><div class="mole" id="mole-0"></div></div>
+        <div class="hole"><div class="mole" id="mole-1"></div></div>
+        <div class="hole"><div class="mole" id="mole-2"></div></div>
+        <div class="hole"><div class="mole" id="mole-3"></div></div>
+        <div class="hole"><div class="mole" id="mole-4"></div></div>
+        <div class="hole"><div class="mole" id="mole-5"></div></div>
+        <div class="hole"><div class="mole" id="mole-6"></div></div>
+        <div class="hole"><div class="mole" id="mole-7"></div></div>
+        <div class="hole"><div class="mole" id="mole-8"></div></div>
+    </div>
+
+    <button class="btn-start" id="start-btn" onclick="startGame()">Comenzar Juego</button>
+
+    <div id="alert">¡Tiempo!</div>
+
+    <script>
+        const holes = document.querySelectorAll('.hole');
+        const moles = document.querySelectorAll('.mole');
+        const scoreBoard = document.getElementById('score');
+        const timeBoard = document.getElementById('time');
+        const startBtn = document.getElementById('start-btn');
+        const alertBox = document.getElementById('alert');
+
+        let lastHole;
+        let timeUp = false;
+        let score = 0;
+        let gameTime = 30; // seconds
+        let countdownTimer;
+
+        // Random time handler for mole pop
+        function randomTime(min, max) {
+            return Math.round(Math.random() * (max - min) + min);
+        }
+
+        // Random hole selection
+        function randomHole(holesList) {
+            const idx = Math.floor(Math.random() * holesList.length);
+            const hole = holesList[idx];
+            if (hole === lastHole) { return randomHole(holesList); }
+            lastHole = hole;
+            return hole;
+        }
+
+        function peep() {
+            const time = randomTime(500, 1200); // How long mole stays up
+            const hole = randomHole(holes);
+            const mole = hole.querySelector('.mole');
+            
+            mole.classList.remove('hit');
+            mole.classList.add('up');
+            
+            setTimeout(() => {
+                mole.classList.remove('up');
+                if (!timeUp) peep();
+            }, time);
+        }
+
+        function startGame() {
+            startBtn.style.display = 'none';
+            alertBox.style.opacity = '0';
+            scoreBoard.textContent = 0;
+            timeBoard.textContent = gameTime;
+            timeUp = false;
+            score = 0;
+            
+            peep();
+
+            // Timer countdown
+            let timeLeft = gameTime;
+            countdownTimer = setInterval(() => {
+                timeLeft--;
+                timeBoard.textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(countdownTimer);
+                    timeUp = true;
+                    alertBox.textContent = `¡Fin! Puntos: ${score}`;
+                    alertBox.style.opacity = '1';
+                    setTimeout(() => { startBtn.style.display = 'block'; startBtn.textContent = 'Jugar de Nuevo'; }, 2000);
+                }
+            }, 1000);
+        }
+
+        function wack(e) {
+            if (!e.isTrusted) return; // Cheater check
+            if (!this.classList.contains('up')) return;
+            
+            this.classList.add('hit');
+            score++;
+            this.classList.remove('up');
+            scoreBoard.textContent = score;
+        }
+
+        moles.forEach(mole => mole.addEventListener('mousedown', wack));
+
+    </script>
+</body>
+</html>

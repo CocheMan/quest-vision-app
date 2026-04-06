@@ -1,0 +1,177 @@
+/* =========================================================================
+   Lobby Specific Styles 
+   ========================================================================= */
+
+@import url('style.css');
+/* Ensuring access to variables and base glass elements */
+
+.lobby-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    width: 100%;
+    z-index: 10;
+}
+
+.lobby-modal {
+    background: var(--q-bg-panel);
+    backdrop-filter: var(--q-glass-blur);
+    -webkit-backdrop-filter: var(--q-glass-blur);
+    border: 1px solid var(--q-glass-border);
+    box-shadow: var(--q-shadow);
+    border-radius: 24px;
+    padding: 40px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    text-align: center;
+}
+
+.lobby-title {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+}
+
+.lobby-subtitle {
+    font-size: 1rem;
+    color: var(--q-text-sub);
+    margin-bottom: 32px;
+}
+
+.lobby-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.btn-lobby {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--q-glass-border);
+    color: var(--q-text-main);
+    padding: 24px 32px;
+    border-radius: 16px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.3s;
+}
+
+.btn-lobby .material-icons-round {
+    font-size: 40px;
+    color: var(--q-text-sub);
+    transition: color 0.3s;
+}
+
+.btn-lobby:hover,
+.btn-lobby:focus-visible {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-lobby:hover .material-icons-round,
+.btn-lobby:focus-visible .material-icons-round {
+    color: var(--q-accent);
+}
+
+.btn-create:hover .material-icons-round {
+    color: #4CAF50;
+    /* Green tint for create */
+}
+
+.btn-create:hover {
+    border-color: rgba(76, 175, 80, 0.5);
+    box-shadow: 0 5px 20px rgba(76, 175, 80, 0.2);
+}
+
+/* Join View (Hidden by Default) */
+.join-view {
+    display: none;
+    flex-direction: column;
+    gap: 16px;
+    animation: fadeIn 0.3s ease;
+}
+
+.join-view.active {
+    display: flex;
+}
+
+.input-code {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--q-glass-border);
+    color: var(--q-text-main);
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    text-align: center;
+    letter-spacing: 2px;
+    font-family: monospace;
+    transition: all 0.3s;
+}
+
+.input-code:focus {
+    outline: none;
+    border-color: var(--q-accent);
+    box-shadow: 0 0 15px var(--q-accent-glow);
+}
+
+.join-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-cancel {
+    background: transparent;
+    border: 1px solid var(--q-glass-border);
+    color: var(--q-text-main);
+    padding: 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    flex: 1;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-submit-join {
+    background: var(--q-accent);
+    color: #000;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    flex: 2;
+    transition: all 0.3s;
+}
+
+.btn-submit-join:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px var(--q-accent-glow);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="0; url=html/index.html">
+    <title>Cargando Quest Vision...</title>
+    <script>
+        // Use JS redirect for better control (Auth wall check)
+        if (sessionStorage.getItem('quest_user_logged_in') === 'true') {
+            window.location.replace('html/index.html');
+        } else {
+            window.location.replace('html/login.html');
+        }
+    </script>
+</head>
+
+<body
+    style="background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; color: #fff; font-family: sans-serif;">
+    <p>Redirigiendo a Quest Vision...</p>
+</body>
+
+</html>

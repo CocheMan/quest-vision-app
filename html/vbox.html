@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Reusing same fonts & icons -->
+    <title>Quest Vision - Vbox Reunión</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <!-- PeerJS for WebRTC -->
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+</head>
+
+<body class="vbox-body">
+
+    <!-- Ambient Background (reused logic subtly tweaked in CSS) -->
+    <div class="ambient-background">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- Top Bar: Back button, Title & Call Info -->
+    <header class="vbox-header glass-panel">
+        <button id="btnBack" class="btn-icon" aria-label="Volver al inicio">
+            <span class="material-icons-round">arrow_back</span>
+        </button>
+        <div class="meeting-info">
+            <h2 id="roomTitle">Sala Vbox - Accesibilidad Total</h2>
+            <span class="badge" aria-live="polite" id="roomStatusBadge">Conectando...</span>
+        </div>
+        <button id="btnCopyCode" class="btn-icon" aria-label="Copiar código de sala">
+            <span class="material-icons-round" id="copyCodeIcon">content_copy</span>
+        </button>
+    </header>
+
+    <!-- Main Layout: Grid of Cameras + Sidebar Panel -->
+    <main class="vbox-main">
+
+        <!-- Video Grid containing other participants -->
+        <section class="video-grid" id="videoGrid" aria-label="Cuadrícula de Participantes">
+
+            <!-- You (User Cam) -->
+            <div class="video-card glass-panel user-cam" id="localVideoWrapper">
+                <video id="localVideo" autoplay muted playsinline></video>
+                <!-- Avatar fallback if camera is off -->
+                <div class="user-avatar" id="localAvatar" style="display: none;">
+                    <span class="material-icons-round">person</span>
+                </div>
+                <div class="participant-info" id="localParticipantInfo">
+                    <span class="name">Tú</span>
+                    <span class="material-icons-round icon-mic on" id="userMicIconStatus">mic</span>
+                    <span class="material-icons-round raise-hand-indicator" id="localHandIndicator"
+                        style="display: none;">pan_tool</span>
+                </div>
+            </div>
+
+            <!-- Remote Videos Container (Child elements will function inside the CSS Grid) -->
+            <div id="remoteVideosContainer" style="display: contents;"></div>
+
+        </section>
+
+        <!-- Sidebar panel: Chat & Subtitles -->
+        <aside class="sidebar glass-panel" aria-label="Panel Lateral: Chat y Subtítulos">
+
+            <div class="sidebar-header">
+                <h3>Interacciones</h3>
+                <div class="tabs">
+                    <button class="tab active" id="btnTabChat" aria-label="Ver Chat">Chat</button>
+                    <button class="tab" id="btnTabCC" aria-label="Ver Historial de Subtítulos">Subtítulos (CC)</button>
+                </div>
+            </div>
+
+            <!-- Chat Content -->
+            <div class="sidebar-content" id="chatContainer">
+                <div class="message system">
+                    ¡Bienvenido a la sala! El chat está encriptado punto a punto.
+                </div>
+            </div>
+
+            <!-- Subtitles Log (Hidden by default) -->
+            <div class="sidebar-content" id="ccContainer" style="display: none;">
+                <div class="message system">
+                    Historial de la transcripción en tiempo real:
+                </div>
+            </div>
+
+            <div class="sidebar-footer" id="chatFooter">
+                <input type="text" id="chatInput" placeholder="Escribe un mensaje..."
+                    aria-label="Campo de entrada de chat" autocomplete="off">
+                <button class="btn-send" id="btnSendChat" aria-label="Enviar Mensaje">
+                    <span class="material-icons-round">send</span>
+                </button>
+            </div>
+
+        </aside>
+
+        <!-- Subtitles Overlay -->
+        <div id="subtitlesOverlay" class="subtitles-overlay" aria-live="polite" aria-atomic="true"></div>
+
+    </main>
+
+    <!-- Bottom Control Bar -->
+    <footer class="controls-bar glass-dock" aria-label="Controles de la reunión">
+
+        <button class="dock-item control-btn toggle-off" id="btnToggleMic" aria-label="Activar o desactivar micrófono">
+            <div class="icon-container">
+                <span class="material-icons-round dock-icon" id="micIcon">mic_off</span>
+            </div>
+            <div class="hover-glow"></div>
+        </button>
+
+        <button class="dock-item control-btn toggle-off" id="btnToggleCam" aria-label="Activar o desactivar cámara">
+            <div class="icon-container">
+                <span class="material-icons-round dock-icon" id="camIcon">videocam_off</span>
+            </div>
+            <div class="hover-glow"></div>
+        </button>
+
+        <button class="dock-item control-btn" id="btnShareScreen" aria-label="Compartir Pantalla">
+            <div class="icon-container">
+                <span class="material-icons-round dock-icon">present_to_all</span>
+            </div>
+            <div class="hover-glow"></div>
+        </button>
+
+        <button class="dock-item control-btn" id="btnRaiseHand" aria-label="Levantar la mano">
+            <div class="icon-container">
+                <span class="material-icons-round dock-icon" id="handIcon">pan_tool</span>
+            </div>
+            <div class="hover-glow"></div>
+        </button>
+
+        <button class="dock-item control-btn btn-danger" id="btnLeave" aria-label="Salir de la reunión">
+            <div class="icon-container">
+                <span class="material-icons-round dock-icon">call_end</span>
+            </div>
+            <div class="hover-glow"></div>
+        </button>
+
+    </footer>
+
+    <!-- Use both app.js for background effects + vbox.js for specific logic -->
+    <script src="../js/app.js"></script>
+    <script type="module" src="../js/vbox.js"></script>
+
+</body>
+
+</html>

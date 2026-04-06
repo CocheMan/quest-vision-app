@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>VR Target Shooter</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <style>
+      #ui-container {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        z-index: 999;
+        color: white;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 15px 25px;
+        border-radius: 10px;
+        border: 2px solid #34d399;
+        pointer-events: none; /* Let clicks pass through to A-Frame */
+      }
+      #score { font-size: 24px; font-weight: bold; color: #34d399; }
+      #time { font-size: 20px; color: #f87171; }
+      #game-over {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(15, 23, 42, 0.9);
+        padding: 40px;
+        border-radius: 20px;
+        border: 2px solid #34d399;
+        text-align: center;
+        color: white;
+        font-family: sans-serif;
+        z-index: 1000;
+        display: none;
+      }
+      #game-over h1 { margin-top: 0; color: #34d399; }
+      .btn {
+        background: #34d399;
+        color: #0f172a;
+        border: none;
+        padding: 10px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 20px;
+        text-decoration: none;
+        display: inline-block;
+      }
+      .btn:hover { background: #10b981; }
+    </style>
+  </head>
+  <body>
+    
+    <div id="ui-container">
+      <div id="score">Score: 0</div>
+      <div id="time">Time: 30s</div>
+    </div>
+
+    <div id="game-over">
+      <h1>¡Tiempo agotado!</h1>
+      <p id="final-score">Puntuación final: 0</p>
+      <button class="btn" onclick="location.reload()">Jugar de nuevo</button>
+      <br>
+      <a href="Games.html" class="btn" style="background:#ec4899; color:white; margin-top:10px;">Volver al Hub</a>
+    </div>
+
+    <a-scene cursor="rayOrigin: mouse">
+      <a-assets>
+        <img id="sky" src="https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80" crossorigin="anonymous">
+      </a-assets>
+
+      <!-- Sky -->
+      <a-sky src="#sky"></a-sky>
+
+      <!-- Player / Camera with reticle for VR gaze -->
+      <a-entity position="0 1.6 0">
+        <a-camera look-controls>
+          <a-entity cursor="fuse: false;"
+                    position="0 0 -1"
+                    geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
+                    material="color: white; shader: flat"
+                    animation__click="property: scale; startEvents: click; easing: easeInCubic; dur: 150; from: 0.1 0.1 0.1; to: 1 1 1">
+          </a-entity>
+        </a-camera>
+      </a-entity>
+
+      <!-- Targets container -->
+      <a-entity id="targets"></a-entity>
+
+      <a-light type="ambient" color="#fff"></a-light>
+      <a-light type="directional" position="-1 1 1" intensity="0.5"></a-light>
+    </a-scene>
+
+    <script>
+      let score = 0;
+      let timeLeft = 30;
+      let gameInterval;
+      let targetInterval;
+      let isGameOver = false;
+
+      const scoreEl = document.getElementById('score');
+      const timeEl = document.getElementById('time');
+      const targetsContainer = document.getElementById('targets');
+      const gameOverMenu = document.getElementById('game-over');
+      const finalScoreEl = document.getElementById('final-score');
+
+      // Random number helper
+      function random(min, max) {
+        return Math.random() * (max - min) + min;
+      }
+
+      // Create a new target
+      function spawnTarget() {
+        if (isGameOver) return;
+        
+        const sphere = document.createElement('a-sphere');
+        // Random position in front of player
+        const x = random(-5, 5);
+        const y = random(0.5, 4);
+        const z = random(-3, -8);
+        
+        sphere.setAttribute('position', `${x} ${y} ${z}`);
+        sphere.setAttribute('radius', '0.5');
+        sphere.setAttribute('color', '#ef4444');
+        sphere.setAttribute('animation__scale', 'property: scale; dir: alternate; dur: 1000; loop: true; to: 1.2 1.2 1.2');
+        
+        // Add click event
+        sphere.addEventListener('click', function() {
+          if (isGameOver) return;
+          score += 10;
+          scoreEl.innerText = 'Score: ' + score;
+          
+          // Shrink animation then remove
+          sphere.setAttribute('animation__shrink', 'property: scale; to: 0 0 0; dur: 200;');
+          setTimeout(() => {
+            if(sphere.parentNode) sphere.parentNode.removeChild(sphere);
+          }, 200);
+        });
+
+        targetsContainer.appendChild(sphere);
+
+        // Remove target after 3 seconds if not clicked
+        setTimeout(() => {
+          if (sphere.parentNode && !isGameOver) {
+            sphere.parentNode.removeChild(sphere);
+          }
+        }, 3000);
+      }
+
+      // Start game
+      function startGame() {
+        // Spawn first target
+        spawnTarget();
+        
+        // Target spawner interval
+        targetInterval = setInterval(spawnTarget, 800);
+
+        // Timer interval
+        gameInterval = setInterval(() => {
+          timeLeft--;
+          timeEl.innerText = 'Time: ' + timeLeft + 's';
+          
+          if (timeLeft <= 0) {
+            endGame();
+          }
+        }, 1000);
+      }
+
+      function endGame() {
+        isGameOver = true;
+        clearInterval(gameInterval);
+        clearInterval(targetInterval);
+        
+        // Clear remaining targets
+        while(targetsContainer.firstChild) {
+          targetsContainer.removeChild(targetsContainer.firstChild);
+        }
+
+        finalScoreEl.innerText = 'Puntuación final: ' + score;
+        gameOverMenu.style.display = 'block';
+      }
+
+      // Wait a bit for scene to load then start
+      setTimeout(startGame, 2000);
+    </script>
+  </body>
+</html>

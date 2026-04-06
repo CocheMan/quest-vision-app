@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quest Vision - Iniciar Sesión</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- Main StyleSheet -->
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/login.css">
+    <!-- Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        /* Specific tweaks to reuse the modal style as a full page container */
+        .login-page-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            width: 100%;
+            z-index: 10;
+        }
+
+        .glass-modal {
+            /* Force the modal style to be visible immediately without .open */
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: all;
+            margin: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Ambient Background MAP -->
+    <div class="ambient-background">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- Main Container -->
+    <main class="login-page-container">
+
+        <div class="glass-modal" role="main">
+            <!-- Authentication wall removes the need for a back to home button here -->
+
+            <h2 id="modalTitle" class="modal-title">Iniciar Sesión</h2>
+            <p class="modal-subtitle">Conéctate para usar Vbox y otras funciones.</p>
+
+            <form id="loginForm" class="auth-form">
+                <div class="input-group">
+                    <span class="material-icons-round input-icon">email</span>
+                    <input type="email" id="emailInput" placeholder="Correo electrónico" required
+                        aria-label="Correo electrónico">
+                </div>
+
+                <div class="input-group">
+                    <span class="material-icons-round input-icon">lock</span>
+                    <input type="password" id="passwordInput" placeholder="Contraseña" required aria-label="Contraseña">
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary" id="btnSubmitAuth">Entrar</button>
+
+                    <div class="separator-text">o continuar con</div>
+
+                    <div class="social-login-group">
+                        <button type="button" class="btn-social btn-google" id="btnGoogleLogin" style="display: none;"
+                            aria-label="Iniciar sesión con Google">
+                            <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" alt="Google Logo"
+                                class="social-icon">
+                            Google
+                        </button>
+
+                    </div>
+
+                    <!-- Div for ReCAPTCHA when Phone login is triggered -->
+                    <div id="recaptcha-container" style="margin-top: 10px; display: flex; justify-content: center;">
+                    </div>
+                </div>
+            </form>
+
+            <div class="modal-footer">
+                <span id="authToggleText">Las cuentas son invitaciones privadas.</span>
+            </div>
+
+            <!-- Error messages block -->
+            <div id="authErrorMsg" class="auth-error" aria-live="assertive"></div>
+        </div>
+
+    </main>
+
+    <!-- Navigation & Auth Logic specifically for this page -->
+    <script type="module" src="../js/auth.js"></script>
+</body>
+
+</html>

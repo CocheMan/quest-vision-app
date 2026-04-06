@@ -1,0 +1,12 @@
+/* =========================================================================
+   Registration Page Specific Styles 
+   ========================================================================= */
+
+@import url('login.css');
+
+/* Example tweak for Registration specifically: */
+
+.glass-modal.regis-modal {
+    max-width: 450px;
+    /* Slightly wider for potentially more fields */
+}

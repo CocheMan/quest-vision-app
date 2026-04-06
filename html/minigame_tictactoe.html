@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --primary: #ec4899;
+            --secondary: #8b5cf6;
+            --x-color: #ec4899;
+            --o-color: #38bdf8;
+            --text-light: #f8fafc;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background: radial-gradient(circle at top left, rgba(139, 92, 246, 0.2) 0%, #0f172a 60%);
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 30px;
+            background: rgba(255,255,255,0.05);
+            padding: 15px 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .back-btn { background: transparent; color: white; border: none; cursor: pointer; font-size: 1.2rem; transition: color 0.3s; }
+        .back-btn:hover { color: var(--primary); }
+
+        .status { font-size: 1.5rem; font-weight: 700; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 400px) {
+            .board {
+                grid-template-columns: repeat(3, 80px);
+                grid-template-rows: repeat(3, 80px);
+            }
+        }
+
+        .cell {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 4rem;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .cell:hover { background: rgba(51, 65, 85, 0.8); }
+
+        .cell.x { color: var(--x-color); text-shadow: 0 0 20px rgba(236, 72, 153, 0.5); }
+        .cell.o { color: var(--o-color); text-shadow: 0 0 20px rgba(56, 189, 248, 0.5); }
+
+        .btn-restart {
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            color: #fff;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .btn-restart:hover { transform: scale(1.05); }
+
+        /* Modes */
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .mode-btn {
+            background: transparent;
+            color: #cbd5e1;
+            border: 1px solid #475569;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .mode-btn.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-color: white;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <button class="back-btn" onclick="window.location.href='Games.html'">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <div class="status" id="statusText">Turno de X</div>
+    </div>
+
+    <div class="board" id="board">
+        <div class="cell" cellIndex="0"></div>
+        <div class="cell" cellIndex="1"></div>
+        <div class="cell" cellIndex="2"></div>
+        <div class="cell" cellIndex="3"></div>
+        <div class="cell" cellIndex="4"></div>
+        <div class="cell" cellIndex="5"></div>
+        <div class="cell" cellIndex="6"></div>
+        <div class="cell" cellIndex="7"></div>
+        <div class="cell" cellIndex="8"></div>
+    </div>
+
+    <button class="btn-restart" id="restartBtn">Reiniciar Juego</button>
+
+    <div class="controls">
+        <button class="mode-btn" id="btn-pvp" onclick="setMode('pvp')">1 vs 1</button>
+        <button class="mode-btn active" id="btn-bot" onclick="setMode('bot')">vs Bot (Fácil)</button>
+    </div>
+
+    <script>
+        const cells = document.querySelectorAll('.cell');
+        const statusText = document.getElementById('statusText');
+        const restartBtn = document.getElementById('restartBtn');
+        const winConditions = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // cols
+            [0, 4, 8], [2, 4, 6]             // diagonals
+        ];
+
+        let options = ["", "", "", "", "", "", "", "", ""];
+        let currentPlayer = "X";
+        let running = false;
+        let gameMode = "bot"; // pvp or bot
+
+        function initGame() {
+            cells.forEach(cell => cell.addEventListener("click", cellClicked));
+            restartBtn.addEventListener("click", restartGame);
+            statusText.textContent = `Turno de ${currentPlayer}`;
+            running = true;
+        }
+
+        function setMode(mode) {
+            gameMode = mode;
+            document.getElementById('btn-pvp').classList.remove('active');
+            document.getElementById('btn-bot').classList.remove('active');
+            document.getElementById(`btn-${mode}`).classList.add('active');
+            restartGame();
+        }
+
+        function cellClicked() {
+            const cellIndex = this.getAttribute("cellIndex");
+
+            if (options[cellIndex] !== "" || !running) {
+                return;
+            }
+
+            updateCell(this, cellIndex);
+            checkWinner();
+
+            if (running && gameMode === "bot" && currentPlayer === "O") {
+                setTimeout(botMove, 500); // slight delay for bot
+            }
+        }
+
+        function updateCell(cell, index) {
+            options[index] = currentPlayer;
+            cell.textContent = currentPlayer;
+            cell.classList.add(currentPlayer.toLowerCase());
+        }
+
+        function changePlayer() {
+            currentPlayer = (currentPlayer === "X") ? "O" : "X";
+            statusText.textContent = `Turno de ${currentPlayer}`;
+        }
+
+        function botMove() {
+            // Very simple bot: picks random empty cell
+            let emptyCells = [];
+            for (let i = 0; i < options.length; i++) {
+                if (options[i] === "") emptyCells.push(i);
+            }
+
+            if (emptyCells.length > 0 && running) {
+                let randomIndex = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                let cell = document.querySelector(`.cell[cellIndex="${randomIndex}"]`);
+                updateCell(cell, randomIndex);
+                checkWinner();
+            }
+        }
+
+        function checkWinner() {
+            let roundWon = false;
+
+            for (let i = 0; i < winConditions.length; i++) {
+                const condition = winConditions[i];
+                const cellA = options[condition[0]];
+                const cellB = options[condition[1]];
+                const cellC = options[condition[2]];
+
+                if (cellA === "" || cellB === "" || cellC === "") {
+                    continue;
+                }
+                if (cellA === cellB && cellB === cellC) {
+                    roundWon = true;
+                    break;
+                }
+            }
+
+            if (roundWon) {
+                statusText.textContent = `¡${currentPlayer} GANA!`;
+                running = false;
+            } else if (!options.includes("")) {
+                statusText.textContent = `¡Empate!`;
+                running = false;
+            } else {
+                changePlayer();
+            }
+        }
+
+        function restartGame() {
+            currentPlayer = "X";
+            options = ["", "", "", "", "", "", "", "", ""];
+            statusText.textContent = `Turno de ${currentPlayer}`;
+            cells.forEach(cell => {
+                cell.textContent = "";
+                cell.classList.remove("x", "o");
+            });
+            running = true;
+        }
+
+        initGame();
+    </script>
+</body>
+</html>

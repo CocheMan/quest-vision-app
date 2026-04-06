@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quest Vision - Crear Cuenta</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- Main StyleSheets -->
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/Regis.css">
+    <!-- Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Ambient Background MAP -->
+    <div class="ambient-background">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- Main Container -->
+    <main class="login-page-container">
+
+        <div class="glass-modal regis-modal" role="main">
+            <!-- Authentication wall removes the need for a back to home button here -->
+
+            <h2 class="modal-title">Crear Cuenta</h2>
+            <p class="modal-subtitle">Únete a la plataforma Quest Vision.</p>
+
+            <form id="regisForm" class="auth-form">
+
+                <div class="input-group">
+                    <span class="material-icons-round input-icon">person</span>
+                    <input type="text" id="nameInput" placeholder="Nombre completo" required
+                        aria-label="Nombre completo">
+                </div>
+
+                <div class="input-group">
+                    <span class="material-icons-round input-icon">email</span>
+                    <input type="email" id="emailInput" placeholder="Correo electrónico" required
+                        aria-label="Correo electrónico">
+                </div>
+
+                <div class="input-group">
+                    <span class="material-icons-round input-icon">lock</span>
+                    <input type="password" id="passwordInput" placeholder="Contraseña" required aria-label="Contraseña">
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary" id="btnSubmitRegis">Registrarse</button>
+
+                    <div class="separator-text">o continuar con</div>
+
+                    <div class="social-login-group">
+                        <button type="button" class="btn-social btn-google" id="btnGoogleRegis"
+                            aria-label="Registrarse con Google">
+                            <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" alt="Google Logo"
+                                class="social-icon">
+                            Google
+                        </button>
+                        <button type="button" class="btn-social btn-phone" id="btnPhoneRegis"
+                            aria-label="Registrarse con Teléfono">
+                            <span class="material-icons-round social-icon">phone_iphone</span>
+                            Teléfono
+                        </button>
+                    </div>
+
+                    <!-- Div for ReCAPTCHA when Phone login is triggered -->
+                    <div id="recaptcha-container-regis"
+                        style="margin-top: 10px; display: flex; justify-content: center;"></div>
+                </div>
+            </form>
+
+            <div class="modal-footer">
+                <span>¿Ya tienes cuenta?</span>
+                <!-- Explicit navigation link to Login -->
+                <a href="login.html" class="btn-text" aria-label="Ir a Iniciar Sesión">Inicia Sesión</a>
+            </div>
+
+            <!-- Error messages block -->
+            <div id="authErrorMsg" class="auth-error" aria-live="assertive"></div>
+        </div>
+
+    </main>
+
+    <!-- Navigation & Auth Logic specifically for this page -->
+    <script type="module" src="../js/auth.js"></script>
+</body>
+
+</html>

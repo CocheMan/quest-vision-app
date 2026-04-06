@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Classic</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --primary: #10b981;
+            --secondary: #34d399;
+            --text-light: #f8fafc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 20px;
+            background: rgba(255,255,255,0.05);
+            padding: 15px 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .back-btn {
+            background: transparent;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: color 0.3s;
+        }
+
+        .back-btn:hover { color: var(--primary); }
+
+        .score-board {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        canvas {
+            background-color: rgba(15, 23, 42, 0.8);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.2);
+        }
+
+        .controls {
+            margin-top: 20px;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        #game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(30, 41, 59, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            border: 2px solid var(--primary);
+            display: none;
+            backdrop-filter: blur(10px);
+        }
+
+        #game-over h2 { color: #f87171; margin-bottom: 10px; font-size: 2.5rem;}
+        #game-over p { margin-bottom: 20px; font-size: 1.2rem;}
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #0f172a;
+            border: none;
+            padding: 10px 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover { transform: scale(1.05); }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <button class="back-btn" onclick="window.location.href='Games.html'">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <div class="score-board">Score: <span id="score">0</span></div>
+    </div>
+
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+
+    <div class="controls">
+        <p><i class="fa-solid fa-keyboard"></i> Usa las flechas del teclado para moverte.</p>
+    </div>
+
+    <div id="game-over">
+        <h2>Game Over!</h2>
+        <p>Lograste <span id="final-score">0</span> puntos.</p>
+        <button class="btn" onclick="resetGame()">Jugar de Nuevo</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const scoreSpan = document.getElementById("score");
+        const gameOverScreen = document.getElementById("game-over");
+        const finalScoreSpan = document.getElementById("final-score");
+
+        const gridSize = 20;
+        const tileCount = canvas.width / gridSize;
+
+        let velocityX = 0;
+        let velocityY = 0;
+        let snake = [];
+        let snakeLength = 3;
+        let appleX = 15;
+        let appleY = 15;
+        let score = 0;
+        let gameLoop;
+        let isGameOver = false;
+
+        function init() {
+            snake = [];
+            for (let i = 0; i < snakeLength; i++) {
+                snake.push({ x: 10, y: 10 });
+            }
+            appleX = Math.floor(Math.random() * tileCount);
+            appleY = Math.floor(Math.random() * tileCount);
+        }
+
+        function drawGame() {
+            if(isGameOver) return;
+
+            // Move snake
+            let headX = snake[0].x + velocityX;
+            let headY = snake[0].y + velocityY;
+
+            // Wall Collision
+            if (headX < 0 || headX >= tileCount || headY < 0 || headY >= tileCount) {
+                gameOver();
+                return;
+            }
+
+            // Self Collision (only check if moving)
+            if(velocityX !== 0 || velocityY !== 0) {
+                for (let i = 0; i < snake.length; i++) {
+                    if (headX === snake[i].x && headY === snake[i].y) {
+                        gameOver();
+                        return;
+                    }
+                }
+            }
+
+            snake.unshift({ x: headX, y: headY });
+
+            // Eat apple
+            if (headX === appleX && headY === appleY) {
+                score += 10;
+                scoreSpan.innerText = score;
+                appleX = Math.floor(Math.random() * tileCount);
+                appleY = Math.floor(Math.random() * tileCount);
+            } else {
+                snake.pop(); // remove tail if didn't eat
+            }
+
+            // Draw Background
+            ctx.fillStyle = "rgba(15, 23, 42, 1)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Apple
+            ctx.fillStyle = "#ef4444";
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = "#ef4444";
+            ctx.beginPath();
+            ctx.arc(appleX * gridSize + gridSize/2, appleY * gridSize + gridSize/2, gridSize/2.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0; // reset
+
+            // Draw Snake
+            for (let i = 0; i < snake.length; i++) {
+                ctx.fillStyle = (i === 0) ? "#34d399" : "#10b981";
+                if(i === 0) {
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = "#10b981";
+                } else {
+                    ctx.shadowBlur = 0;
+                }
+                ctx.fillRect(snake[i].x * gridSize, snake[i].y * gridSize, gridSize - 2, gridSize - 2);
+            }
+        }
+
+        function gameOver() {
+            isGameOver = true;
+            clearInterval(gameLoop);
+            finalScoreSpan.innerText = score;
+            gameOverScreen.style.display = "block";
+        }
+
+        function resetGame() {
+            score = 0;
+            scoreSpan.innerText = score;
+            velocityX = 0;
+            velocityY = 0;
+            snakeLength = 3;
+            isGameOver = false;
+            gameOverScreen.style.display = "none";
+            init();
+            gameLoop = setInterval(drawGame, 1000 / 10); // 10 fps
+        }
+
+        document.addEventListener("keydown", (e) => {
+            // Prevent scrolling with arrows
+            if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," "].indexOf(e.code) > -1) {
+                e.preventDefault();
+            }
+
+            // Start movement if stopped
+            if(velocityX === 0 && velocityY === 0 && !isGameOver) {
+                if(e.key === "ArrowUp") { velocityY = -1; velocityX = 0; }
+                else if(e.key === "ArrowDown") { velocityY = 1; velocityX = 0; }
+                else if(e.key === "ArrowLeft") { velocityX = -1; velocityY = 0; }
+                else if(e.key === "ArrowRight") { velocityX = 1; velocityY = 0; }
+                return;
+            }
+
+            if (e.key === "ArrowUp" && velocityY !== 1) { velocityY = -1; velocityX = 0; }
+            if (e.key === "ArrowDown" && velocityY !== -1) { velocityY = 1; velocityX = 0; }
+            if (e.key === "ArrowLeft" && velocityX !== 1) { velocityX = -1; velocityY = 0; }
+            if (e.key === "ArrowRight" && velocityX !== -1) { velocityX = 1; velocityY = 0; }
+        });
+
+        init();
+        gameLoop = setInterval(drawGame, 1000 / 10);
+    </script>
+</body>
+</html>

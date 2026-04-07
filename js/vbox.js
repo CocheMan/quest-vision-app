@@ -202,8 +202,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         micSpan.className = 'material-icons-round icon-mic on';
         micSpan.textContent = 'mic';
 
+        const handSpan = document.createElement('span');
+        handSpan.className = 'material-icons-round icon-hand raise-hand-indicator';
+        handSpan.textContent = 'front_hand';
+        handSpan.style.display = 'none';
+        handSpan.style.color = 'var(--q-warning)';
+        handSpan.style.marginLeft = '8px';
+
         info.appendChild(nameSpan);
         info.appendChild(micSpan);
+        info.appendChild(handSpan);
 
         card.appendChild(video);
         card.appendChild(info);
@@ -302,23 +310,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         conn.on('data', async (data) => {
             if (data.type === 'subtitle') {
-                const incomingText = data.text;
-                // Auto translate subtitles
-                const translated = await translateText(incomingText, myLanguage);
-                showSubtitle(translated, "Invitado");
+                // Sin traducción temporal para evitar bloqueos por límite de API gratuita
+                showSubtitle(data.text, "Invitado");
             }
             else if (data.type === 'chat') {
                 // Incoming text chat
                 appendLog(chatContainer, data.text, "Invitado");
             }
             else if (data.type === 'raise-hand') {
-                // Incoming raise hand state
-                // Since this uses a simplified mesh, we find the video card by peer ID (if we had set IDs).
-                // Temporarily, we'll try to find any remote hand indicator and toggle it.
-                // In a true multi-user setting, we'd assign IDs to video wrappers based on conn.peer
-                const remoteHand = document.querySelector('.participant-info.remote .raise-hand-indicator');
-                if (remoteHand) {
-                    remoteHand.style.display = data.state ? 'inline-block' : 'none';
+                // Seleccionar explícitamente el recuadro del invitado que alzó la mano
+                const card = document.getElementById(conn.peer);
+                if (card) {
+                    const remoteHand = card.querySelector('.raise-hand-indicator');
+                    if (remoteHand) {
+                        remoteHand.style.display = data.state ? 'inline-block' : 'none';
+                    }
                 }
             }
             else if (data.type === 'peer-list') {

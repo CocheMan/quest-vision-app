@@ -164,11 +164,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Function to handle the active video call connection
     function handleCall(call) {
         call.on('stream', (remoteStream) => {
-            console.log("Remote stream received");
+            console.log("Remote stream received from", call.peer);
 
             // Check if we already have a video for this peer
-            if (!document.getElementById(call.peer)) {
+            const existingCard = document.getElementById(call.peer);
+            if (!existingCard) {
                 addRemoteVideo(call.peer, remoteStream);
+            } else {
+                // If stream tracks update (e.g. video track arrives after audio), update srcObject
+                const videoEl = existingCard.querySelector('video');
+                if (videoEl && videoEl.srcObject !== remoteStream) {
+                    videoEl.srcObject = remoteStream;
+                }
             }
         });
 
@@ -190,6 +197,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         video.autoplay = true;
         video.playsInline = true;
         video.srcObject = stream;
+
+        // Auto-reproducción robusta: El navegador bloquea audio/video si el usuario no ha interactuado
+        video.onloadedmetadata = () => {
+            video.play().catch(err => {
+                console.warn("Autoplay bloqueado. Esperando interacción del usuario: ", err);
+                const playOnInteract = () => {
+                    video.play();
+                    document.body.removeEventListener('click', playOnInteract);
+                    document.body.removeEventListener('touchstart', playOnInteract);
+                };
+                document.body.addEventListener('click', playOnInteract);
+                document.body.addEventListener('touchstart', playOnInteract);
+            });
+        };
 
         const info = document.createElement('div');
         info.className = 'participant-info';
@@ -333,7 +354,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     // Evitamos marcarnos a nosotros mismos o a gente que ya nos marcó
                     if (!peer.connections[otherPeerId]) {
                         console.log("Mesh Networking: Llamando a otro invitado secreto: " + otherPeerId);
-                        
+
                         // Iniciar videollamada cruzada
                         const call = peer.call(otherPeerId, localStream);
                         handleCall(call);

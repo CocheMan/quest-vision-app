@@ -197,13 +197,33 @@ document.addEventListener('DOMContentLoaded', async () => {
         video.autoplay = true;
         video.playsInline = true;
         video.srcObject = stream;
-
         // Auto-reproducción robusta: El navegador bloquea audio/video si el usuario no ha interactuado
-        video.onloadedmetadata = () => {
+        const playVideo = () => {
             video.play().catch(err => {
                 console.warn("Autoplay bloqueado. Esperando interacción del usuario: ", err);
+                // Mostrar alerta visual temporal para que el anfitrión sepa que debe hacer clic
+                let overlay = document.getElementById('autoplayAlertOverlay');
+                if (!overlay) {
+                    overlay = document.createElement('div');
+                    overlay.id = 'autoplayAlertOverlay';
+                    overlay.style.position = 'absolute';
+                    overlay.style.top = '10%';
+                    overlay.style.left = '50%';
+                    overlay.style.transform = 'translate(-50%, 0)';
+                    overlay.style.background = 'var(--q-primary)';
+                    overlay.style.color = '#fff';
+                    overlay.style.padding = '12px 24px';
+                    overlay.style.borderRadius = '8px';
+                    overlay.style.zIndex = '9999';
+                    overlay.style.cursor = 'pointer';
+                    overlay.style.boxShadow = '0 4px 15px rgba(0,0,0,0.3)';
+                    overlay.innerHTML = '<strong>⚠️ Haz clic aquí o en cualquier lado para iniciar la cámara y audio del invitado</strong>';
+                    document.body.appendChild(overlay);
+                }
+
                 const playOnInteract = () => {
                     video.play();
+                    if (overlay) overlay.remove();
                     document.body.removeEventListener('click', playOnInteract);
                     document.body.removeEventListener('touchstart', playOnInteract);
                 };
@@ -211,6 +231,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 document.body.addEventListener('touchstart', playOnInteract);
             });
         };
+
+        // Forzar reproducción tanto si se cargan metadatos como si no, para asegurar
+        video.onloadedmetadata = playVideo;
+        // Intento inmediato también por si el stream ya viene listo
+        setTimeout(playVideo, 500);
 
         const info = document.createElement('div');
         info.className = 'participant-info';

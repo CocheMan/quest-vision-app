@@ -76,12 +76,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     /* --- WebRTC & Camera Setup --- */
 
     try {
-        // Request Camera and Mic
-        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        // Request Camera and Mic with fallbacks
+        try {
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        } catch (vidErr) {
+            console.warn("Media devices initially failed, trying audio only...", vidErr);
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+                isCamOn = false;
+            } catch (audErr) {
+                console.warn("No audio device available or permission denied. Joining without media.");
+                // Create an empty stream so PeerJS doesn't crash on peer.call
+                localStream = new MediaStream();
+                isCamOn = false;
+                isMicOn = false;
+            }
+        }
 
         // Show Local Video
-        if (localVideo) {
+        if (localVideo && isCamOn) {
             localVideo.srcObject = localStream;
+        } else if (localVideo && !isCamOn) {
+            localVideo.style.display = 'none';
+            if (localAvatar) localAvatar.style.display = 'flex';
         }
 
         // Initialize PeerJS
@@ -107,17 +124,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             roomStatusBadge.textContent = mode === 'host' ? "Esperando invitados" : "Conectado";
             roomStatusBadge.style.background = "var(--q-success)"; // Greenish indicator
 
-            // If we are a guest, immediately call the host
+            // If we are a guest, connect to the host via data channel to ask for permission
             if (mode === 'guest') {
                 const hostId = `quest-${roomCode}`;
-                console.log("Calling host: " + hostId);
-                const call = peer.call(hostId, localStream);
-                handleCall(call);
+                console.log("Connecting to host via data channel: " + hostId);
 
                 // Open Data Channel to Host
                 const conn = peer.connect(hostId);
                 dataConnections.push(conn);
                 setupDataConnection(conn);
+                
+                conn.on('open', () => {
+                    // Start the permission request
+                    conn.send({ type: 'join-request', peerId: peer.id });
+                    roomStatusBadge.textContent = "Pidiendo permiso...";
+                });
             }
         });
 
@@ -143,16 +164,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         peer.on('connection', (conn) => {
             dataConnections.push(conn);
             setupDataConnection(conn);
-
-            // Si soy el anfitrión, paso la "lista de asistencia" actual al recién llegado
-            if (mode === 'host') {
-                conn.on('open', () => {
-                    const uniquePeers = [...new Set(dataConnections.map(c => c.peer))].filter(p => p !== conn.peer && p !== peer.id);
-                    if (uniquePeers.length > 0) {
-                        conn.send({ type: 'peer-list', peers: uniquePeers });
-                    }
-                });
-            }
         });
 
     } catch (error) {
@@ -349,13 +360,86 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // 3. Handle Incoming PeerJS Data
+    let joinRequestsQueue = [];
+    let isPrompting = false;
+
+    function processJoinQueue() {
+        if (isPrompting || joinRequestsQueue.length === 0) return;
+        isPrompting = true;
+        const request = joinRequestsQueue.shift();
+        showJoinPrompt(request.peerId, request.conn);
+    }
+
+    function showJoinPrompt(guestId, conn) {
+        const modal = document.getElementById('joinPromptModal');
+        const text = document.getElementById('joinPromptText');
+        const btnAccept = document.getElementById('btnAcceptJoin');
+        const btnReject = document.getElementById('btnRejectJoin');
+
+        if (!modal) {
+            isPrompting = false;
+            return;
+        }
+        text.textContent = `Un invitado (${guestId}) quiere entrar a la sala.`;
+        modal.style.display = 'flex';
+
+        const cleanup = () => {
+            modal.style.display = 'none';
+            btnAccept.removeEventListener('click', onAccept);
+            btnReject.removeEventListener('click', onReject);
+            isPrompting = false;
+            processJoinQueue();
+        };
+
+        const onAccept = () => {
+            conn.send({ type: 'join-accept' });
+            // Send peer-list to the newly accepted guest
+            const uniquePeers = [...new Set(dataConnections.map(c => c.peer))].filter(p => p !== conn.peer && p !== peer.id);
+            if (uniquePeers.length > 0) {
+                conn.send({ type: 'peer-list', peers: uniquePeers });
+            }
+            cleanup();
+        };
+
+        const onReject = () => {
+            conn.send({ type: 'join-reject' });
+            setTimeout(() => {
+                conn.close();
+                dataConnections = dataConnections.filter(c => c !== conn);
+            }, 500); 
+            cleanup();
+        };
+
+        btnAccept.addEventListener('click', onAccept);
+        btnReject.addEventListener('click', onReject);
+    }
+
     function setupDataConnection(conn) {
         conn.on('open', () => {
             console.log(`Data connection opened with ${conn.peer}`);
         });
 
         conn.on('data', async (data) => {
-            if (data.type === 'subtitle') {
+            if (data.type === 'join-request') {
+                if (mode === 'host') {
+                    joinRequestsQueue.push({ peerId: data.peerId || conn.peer, conn: conn });
+                    processJoinQueue();
+                }
+            }
+            else if (data.type === 'join-accept') {
+                roomStatusBadge.textContent = "Conectado";
+                roomStatusBadge.style.background = "var(--q-success)";
+                
+                // Now that we are accepted, we call the host
+                const hostId = `quest-${roomCode}`;
+                const call = peer.call(hostId, localStream);
+                handleCall(call);
+            }
+            else if (data.type === 'join-reject') {
+                alert("El anfitrión ha rechazado tu entrada a la sala.");
+                window.location.href = 'index.html';
+            }
+            else if (data.type === 'subtitle') {
                 // Sin traducción temporal para evitar bloqueos por límite de API gratuita
                 showSubtitle(data.text, "Invitado");
             }
@@ -601,8 +685,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
     if (btnToggleMic && micIcon && localStream) {
-        // Initial sync of UI with stream state (both default to true but lets be safe)
-        btnToggleMic.classList.remove('toggle-off');
+        // Initial sync of UI with stream state
+        if (!isMicOn) {
+            btnToggleMic.classList.add('toggle-off');
+            micIcon.innerText = 'mic_off';
+            if (userMicIconStatus) {
+                userMicIconStatus.innerText = 'mic_off';
+                userMicIconStatus.classList.remove('on');
+                userMicIconStatus.classList.add('off');
+            }
+        } else {
+            btnToggleMic.classList.remove('toggle-off');
+        }
 
         btnToggleMic.addEventListener('click', () => {
             isMicOn = !isMicOn;
@@ -642,7 +736,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     if (btnToggleCam && camIcon && localStream) {
-        btnToggleCam.classList.remove('toggle-off');
+        if (!isCamOn) {
+            btnToggleCam.classList.add('toggle-off');
+            camIcon.innerText = 'videocam_off';
+        } else {
+            btnToggleCam.classList.remove('toggle-off');
+        }
 
         btnToggleCam.addEventListener('click', () => {
             isCamOn = !isCamOn;

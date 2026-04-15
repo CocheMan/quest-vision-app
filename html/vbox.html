@@ -102,6 +102,18 @@
         <!-- Subtitles Overlay -->
         <div id="subtitlesOverlay" class="subtitles-overlay" aria-live="polite" aria-atomic="true"></div>
 
+        <!-- Host Join Prompt Modal -->
+        <div id="joinPromptModal" class="modal-overlay" style="display: none; z-index: 10000;">
+            <div class="modal-content glass-panel">
+                <h2>Solicitud de Acceso</h2>
+                <p id="joinPromptText">Alguien quiere unirse a la sala.</p>
+                <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+                    <button id="btnRejectJoin" class="btn-danger" style="padding: 10px 24px;">Rechazar</button>
+                    <button id="btnAcceptJoin" class="btn-primary" style="padding: 10px 24px;">Admitir</button>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <!-- Bottom Control Bar -->

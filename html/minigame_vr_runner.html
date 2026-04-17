@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>VR Endless Runner</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <style>
+      #ui-container {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        z-index: 999;
+        color: white;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: rgba(15, 23, 42, 0.7);
+        padding: 15px 25px;
+        border-radius: 10px;
+        border: 2px solid #0ea5e9;
+        pointer-events: none; /* Let clicks pass through to A-Frame */
+        backdrop-filter: blur(5px);
+      }
+      #score { font-size: 28px; font-weight: bold; color: #0ea5e9; text-shadow: 0 0 10px #0ea5e9; }
+      
+      #instructions {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #fff;
+        background: rgba(0,0,0,0.5);
+        padding: 10px 20px;
+        border-radius: 20px;
+        font-family: sans-serif;
+        font-size: 18px;
+        pointer-events: none;
+        z-index: 999;
+      }
+
+      #game-over {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(15, 23, 42, 0.95);
+        padding: 40px;
+        border-radius: 20px;
+        border: 3px solid #ef4444;
+        text-align: center;
+        color: white;
+        font-family: sans-serif;
+        z-index: 1000;
+        display: none;
+        box-shadow: 0 0 30px rgba(239, 68, 68, 0.5);
+      }
+      #game-over h1 { margin-top: 0; color: #ef4444; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 15px #ef4444; }
+      #final-score { font-size: 24px; font-weight: bold; margin: 20px 0; }
+      .btn {
+        background: #0ea5e9;
+        color: #fff;
+        border: none;
+        padding: 12px 24px;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-top: 15px;
+        text-decoration: none;
+        display: inline-block;
+        transition: transform 0.2s, background 0.2s;
+        box-shadow: 0 0 15px #0ea5e9;
+      }
+      .btn:hover { background: #0284c7; transform: scale(1.05); }
+      .btn-exit {
+        background: #334155;
+        box-shadow: none;
+        margin-left: 10px;
+      }
+      .btn-exit:hover { background: #1e293b; }
+    </style>
+  </head>
+  <body>
+    
+    <div id="ui-container">
+      <div id="score">Score: 0</div>
+    </div>
+    
+    <div id="instructions">
+      TOCA LA PANTALLA PARA SALTAR
+    </div>
+
+    <div id="game-over">
+      <h1>¡Chocaste!</h1>
+      <p id="final-score">Distancia recorrida: 0</p>
+      <button class="btn" onclick="location.reload()">Reintentar</button>
+      <a href="Games.html" class="btn btn-exit">Salir</a>
+    </div>
+
+    <script>
+      AFRAME.registerComponent('runner-system', {
+        schema: {},
+        init: function () {
+          this.score = 0;
+          this.isGameOver = false;
+          this.isJumping = false;
+          this.speedMul = 1.0;
+          this.spawnTimer = 0;
+          this.obstacleSpeed = 40; // units per second
+          this.nextSpawn = 1500; // ms
+          
+          this.scoreEl = document.getElementById('score');
+          this.gameOverEl = document.getElementById('game-over');
+          this.finalScoreEl = document.getElementById('final-score');
+          this.player = document.getElementById('player');
+          this.sceneEl = this.el;
+          
+          // Jump Listener (Click on scene / Screen Tap)
+          window.addEventListener('click', this.jump.bind(this));
+          window.addEventListener('touchstart', this.jump.bind(this));
+          
+          // Environment decorator spawners
+          this.decorateTimer = 0;
+        },
+        
+        jump: function(e) {
+          if (this.isGameOver || this.isJumping) return;
+          
+          // Hide instructions on first jump
+          const inst = document.getElementById('instructions');
+          if(inst) inst.style.display = 'none';
+
+          this.isJumping = true;
+          
+          // Quick vertical jump animation (up to Y=2.5, then back down)
+          this.player.setAttribute('animation__jumpup', {
+            property: 'position',
+            to: '0 2.5 0',
+            dur: 300,
+            easing: 'easeOutQuad'
+          });
+          
+          setTimeout(() => {
+             // Fall down
+             if(this.isGameOver) return;
+             this.player.setAttribute('animation__jumpdown', {
+               property: 'position',
+               to: '0 0 0',
+               dur: 250,
+               easing: 'easeInQuad'
+             });
+             
+             // Unlock jumping shortly after landing
+             setTimeout(() => { this.isJumping = false; }, 260);
+          }, 300);
+        },
+
+        endGame: function() {
+          this.isGameOver = true;
+          this.finalScoreEl.innerText = 'Puntuación: ' + Math.floor(this.score);
+          this.gameOverEl.style.display = 'block';
+          
+          // Stop all obstacles
+          let obstacles = document.querySelectorAll('.obstacle, .scenery');
+          obstacles.forEach(el => {
+              el.removeAttribute('animation');
+          });
+        },
+
+        tick: function (time, timeDelta) {
+          if (this.isGameOver) return;
+          
+          let dt = timeDelta / 1000; // Delta time in seconds
+          
+          // 1. Scoring & Speed increase
+          this.score += 10 * dt * this.speedMul;
+          this.scoreEl.innerText = "Score: " + Math.floor(this.score);
+          
+          this.speedMul += dt * 0.02; // Game gets slightly faster every second
+
+          // 2. Obstacle Spawning
+          this.spawnTimer += timeDelta;
+          if (this.spawnTimer > this.nextSpawn / this.speedMul) {
+            this.spawnTimer = 0;
+            this.spawnObstacle();
+            
+            // Randomize next spawn time slightly between 1.0s and 2.5s base
+            this.nextSpawn = Math.random() * 1500 + 1000;
+          }
+          
+          // 3. Scenery Spawning (Neon walls flying by)
+          this.decorateTimer += timeDelta;
+          if (this.decorateTimer > 200 / this.speedMul) {
+            this.decorateTimer = 0;
+            this.spawnScenery();
+          }
+
+          // 4. Collision Detection
+          let playerY = this.player.object3D.position.y;
+          let obstacles = document.querySelectorAll('.obstacle');
+          
+          obstacles.forEach(obs => {
+             let z = obs.object3D.position.z;
+             // If obstacle is physically passing through the player (Z between -0.4 and 0.4)
+             if (z > -0.5 && z < 0.5) {
+                // If player is not jumping high enough over a 1-unit block
+                if (playerY < 1.0) {
+                    this.endGame();
+                }
+             }
+             // Cleanup if out of bounds
+             if (z > 5) {
+                 obs.parentNode.removeChild(obs);
+             }
+          });
+          
+          // Scenery cleanup
+          let sceneries = document.querySelectorAll('.scenery');
+          sceneries.forEach(sc => {
+              if (sc.object3D.position.z > 5) {
+                 sc.parentNode.removeChild(sc);
+              }
+          });
+        },
+        
+        spawnObstacle: function() {
+           let el = document.createElement('a-box');
+           el.classList.add('obstacle');
+           // Dimensions
+           el.setAttribute('width', '2');
+           el.setAttribute('height', '1');
+           el.setAttribute('depth', '1');
+           // Color
+           el.setAttribute('color', '#ef4444');
+           // Physics (Starting at Z = -60, Y = 0.5 center so it rests on floor)
+           el.setAttribute('position', '0 0.5 -60');
+           
+           // Neon glow effect (simple material)
+           el.setAttribute('material', 'shader: standard; emissive: #ef4444; emissiveIntensity: 0.5; metalness: 0.8');
+
+           // Animation towards player
+           let dur = (65 / this.obstacleSpeed) * 1000 / this.speedMul;
+           el.setAttribute('animation', `property: position; to: 0 0.5 5; dur: ${dur}; easing: linear;`);
+           
+           this.sceneEl.appendChild(el);
+        },
+        
+        spawnScenery: function() {
+           // Spawn decorative flying stripes on the sides
+           let el = document.createElement('a-box');
+           el.classList.add('scenery');
+           let side = Math.random() > 0.5 ? 1 : -1;
+           let xPos = side * (Math.random() * 5 + 4); // Between 4 and 9
+           let yPos = Math.random() * 2 + 0.1;
+
+           el.setAttribute('width', '0.2');
+           el.setAttribute('height', '0.2');
+           el.setAttribute('depth', '4');
+           
+           // Random Neon Colors
+           const colors = ['#0ea5e9', '#ec4899', '#8b5cf6', '#10b981'];
+           let c = colors[Math.floor(Math.random() * colors.length)];
+           
+           el.setAttribute('color', c);
+           el.setAttribute('material', `shader: standard; emissive: ${c}; emissiveIntensity: 0.8`);
+           el.setAttribute('position', `${xPos} ${yPos} -80`);
+
+           let dur = (85 / this.obstacleSpeed) * 1000 / this.speedMul;
+           el.setAttribute('animation', `property: position; to: ${xPos} ${yPos} 5; dur: ${dur}; easing: linear;`);
+           
+           this.sceneEl.appendChild(el);
+        }
+      });
+    </script>
+
+    <a-scene runner-system background="color: #020617" fog="type: exponential; color: #020617; density: 0.03">
+      <!-- Ground Grid to simulate floor -->
+      <a-grid position="0 0.1 0" scale="2 2 2"></a-grid>
+      
+      <!-- Better floor -->
+      <a-plane position="0 0 -30" rotation="-90 0 0" width="100" height="100" 
+               color="#0f172a" 
+               material="metalness: 0.8; roughness: 0.2">
+      </a-plane>
+
+      <!-- Player rig, so we can jump the camera without resetting the VR look orientation -->
+      <a-entity id="player" position="0 0 0">
+        <!-- The active camera inside the rig -->
+        <a-camera position="0 1.6 0" wasd-controls="enabled: false;" look-controls>
+          <!-- Optional reticle for VR users to see absolute center -->
+          <a-entity cursor="fuse: false;"
+                    position="0 0 -1"
+                    geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.015"
+                    material="color: #0ea5e9; shader: flat; opacity: 0.5">
+          </a-entity>
+        </a-camera>
+      </a-entity>
+
+      <!-- Ambient and directional lights -->
+      <a-light type="ambient" color="#222"></a-light>
+      <a-light type="directional" position="0 5 -5" intensity="0.5" color="#fff"></a-light>
+      <a-light type="point" position="0 2 0" intensity="1.5" color="#0ea5e9"></a-light>
+      
+    </a-scene>
+
+  </body>
+</html>

@@ -444,10 +444,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function setupDataConnection(conn) {
-        conn.on('open', () => {
-            console.log(`Data connection opened with ${conn.peer}`);
-            conn.send({ type: 'identify', email: myEmail });
-        });
+        const sendIdentify = () => {
+            try { conn.send({ type: 'identify', email: myEmail }); } catch(err) {}
+        };
+
+        if (conn.open) {
+            sendIdentify();
+        } else {
+            conn.on('open', () => {
+                console.log(`Data connection opened with ${conn.peer}`);
+                sendIdentify();
+            });
+        }
 
         conn.on('data', async (data) => {
             if (data.type === 'identify') {

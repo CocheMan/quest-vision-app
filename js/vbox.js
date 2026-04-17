@@ -105,16 +105,27 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Prefix room with 'quest-' to avoid public server collisions
         const peerId = mode === 'host' ? `quest-${roomCode}` : null;
 
-        // If host, we request a specific ID. If guest, we let PeerJS assign a random one.
         peer = new Peer(peerId, {
             debug: 2,
             config: {
                 'iceServers': [
                     { urls: 'stun:stun.l.google.com:19302' },
                     { urls: 'stun:stun1.l.google.com:19302' },
-                    { urls: 'stun:stun2.l.google.com:19302' },
-                    { urls: 'stun:stun3.l.google.com:19302' },
-                    { urls: 'stun:stun4.l.google.com:19302' },
+                    { 
+                        urls: 'turn:openrelay.metered.ca:80',
+                        username: 'openrelayproject',
+                        credential: 'openrelayproject'
+                    },
+                    { 
+                        urls: 'turn:openrelay.metered.ca:443',
+                        username: 'openrelayproject',
+                        credential: 'openrelayproject'
+                    },
+                    { 
+                        urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+                        username: 'openrelayproject',
+                        credential: 'openrelayproject'
+                    }
                 ]
             }
         });
@@ -133,7 +144,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const conn = peer.connect(hostId);
                 dataConnections.push(conn);
                 setupDataConnection(conn);
-                
+
                 conn.on('open', () => {
                     // Start the permission request
                     conn.send({ type: 'join-request', peerId: peer.id });
@@ -186,6 +197,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const videoEl = existingCard.querySelector('video');
                 if (videoEl && videoEl.srcObject !== remoteStream) {
                     videoEl.srcObject = remoteStream;
+                    videoEl.play().catch(e => console.warn("Auto-play prevented on stream update", e));
                 }
             }
         });
@@ -406,7 +418,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             setTimeout(() => {
                 conn.close();
                 dataConnections = dataConnections.filter(c => c !== conn);
-            }, 500); 
+            }, 500);
             cleanup();
         };
 
@@ -429,7 +441,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             else if (data.type === 'join-accept') {
                 roomStatusBadge.textContent = "Conectado";
                 roomStatusBadge.style.background = "var(--q-success)";
-                
+
                 // Now that we are accepted, we call the host
                 const hostId = `quest-${roomCode}`;
                 const call = peer.call(hostId, localStream);

@@ -1,5 +1,6 @@
-import { db } from "./firebase-init.js";
+import { auth, db } from "./firebase-init.js";
 import { doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
 
 document.addEventListener('DOMContentLoaded', async () => {
 
@@ -28,6 +29,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     let peer = null;
     let isMicOn = true;
     let isCamOn = true;
+    let myEmail = "Invitado";
+    let peerNames = {};
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            myEmail = user.email || user.phoneNumber || "Usuario";
+            dataConnections.forEach(conn => {
+                if (conn.open) {
+                    try { conn.send({ type: 'identify', email: myEmail }); } catch (e) {}
+                }
+            });
+        }
+    });
 
     // 2. Parse URL Parameters
     const urlParams = new URLSearchParams(window.location.search);
@@ -146,6 +160,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 setupDataConnection(conn);
 
                 conn.on('open', () => {
+                    // Send identify first!
+                    conn.send({ type: 'identify', email: myEmail });
                     // Start the permission request
                     conn.send({ type: 'join-request', peerId: peer.id });
                     roomStatusBadge.textContent = "Pidiendo permiso...";
@@ -265,7 +281,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const nameSpan = document.createElement('span');
         nameSpan.className = 'name';
-        nameSpan.textContent = "Invitado"; // You could transmit real names via data channels
+        nameSpan.textContent = peerNames[peerId] || "Invitado";
 
         const micSpan = document.createElement('span');
         micSpan.className = 'material-icons-round icon-mic on';
@@ -392,7 +408,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             isPrompting = false;
             return;
         }
-        text.textContent = `Un invitado (${guestId}) quiere entrar a la sala.`;
+        const guestEmail = peerNames[guestId] || guestId;
+        text.textContent = `Un invitado (${guestEmail}) quiere entrar a la sala.`;
         modal.style.display = 'flex';
 
         const cleanup = () => {
@@ -429,10 +446,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     function setupDataConnection(conn) {
         conn.on('open', () => {
             console.log(`Data connection opened with ${conn.peer}`);
+            conn.send({ type: 'identify', email: myEmail });
         });
 
         conn.on('data', async (data) => {
-            if (data.type === 'join-request') {
+            if (data.type === 'identify') {
+                peerNames[conn.peer] = data.email;
+                const card = document.getElementById(conn.peer);
+                if (card) {
+                    const nameSpan = card.querySelector('.name');
+                    if (nameSpan) nameSpan.textContent = data.email;
+                }
+            }
+            else if (data.type === 'join-request') {
                 if (mode === 'host') {
                     joinRequestsQueue.push({ peerId: data.peerId || conn.peer, conn: conn });
                     processJoinQueue();
@@ -453,11 +479,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             else if (data.type === 'subtitle') {
                 // Sin traducción temporal para evitar bloqueos por límite de API gratuita
-                showSubtitle(data.text, "Invitado");
+                showSubtitle(data.text, peerNames[conn.peer] || "Invitado");
             }
             else if (data.type === 'chat') {
                 // Incoming text chat
-                appendLog(chatContainer, data.text, "Invitado");
+                appendLog(chatContainer, data.text, peerNames[conn.peer] || "Invitado");
             }
             else if (data.type === 'raise-hand') {
                 // Seleccionar explícitamente el recuadro del invitado que alzó la mano

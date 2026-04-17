@@ -105,8 +105,8 @@
           this.isJumping = false;
           this.speedMul = 1.0;
           this.spawnTimer = 0;
-          this.obstacleSpeed = 40; // units per second
-          this.nextSpawn = 1500; // ms
+          this.obstacleSpeed = 15; // units per second (reduced from 40 so it's visible)
+          this.nextSpawn = 1800; // ms
           
           this.scoreEl = document.getElementById('score');
           this.gameOverEl = document.getElementById('game-over');
@@ -200,10 +200,10 @@
           
           obstacles.forEach(obs => {
              let z = obs.object3D.position.z;
-             // If obstacle is physically passing through the player (Z between -0.4 and 0.4)
-             if (z > -0.5 && z < 0.5) {
-                // If player is not jumping high enough over a 1-unit block
-                if (playerY < 1.0) {
+             // If obstacle is physically passing through the player
+             if (z > -1.0 && z < 1.0) {
+                // If player is not jumping high enough over a 1.2-unit block
+                if (playerY < 1.2) {
                     this.endGame();
                 }
              }
@@ -225,21 +225,20 @@
         spawnObstacle: function() {
            let el = document.createElement('a-box');
            el.classList.add('obstacle');
-           // Dimensions
-           el.setAttribute('width', '2');
-           el.setAttribute('height', '1');
+           // Dimensions (Bigger for visibility)
+           el.setAttribute('width', '3.5');
+           el.setAttribute('height', '1.2');
            el.setAttribute('depth', '1');
-           // Color
+           // Flat color to pop through the darkness
            el.setAttribute('color', '#ef4444');
-           // Physics (Starting at Z = -60, Y = 0.5 center so it rests on floor)
-           el.setAttribute('position', '0 0.5 -60');
+           el.setAttribute('material', 'shader: flat; color: #ef4444');
            
-           // Neon glow effect (simple material)
-           el.setAttribute('material', 'shader: standard; emissive: #ef4444; emissiveIntensity: 0.5; metalness: 0.8');
+           // Starting closer (Z = -40)
+           el.setAttribute('position', '0 0.6 -40');
 
            // Animation towards player
-           let dur = (65 / this.obstacleSpeed) * 1000 / this.speedMul;
-           el.setAttribute('animation', `property: position; to: 0 0.5 5; dur: ${dur}; easing: linear;`);
+           let dur = (45 / this.obstacleSpeed) * 1000 / this.speedMul;
+           el.setAttribute('animation', `property: position; to: 0 0.6 5; dur: ${dur}; easing: linear;`);
            
            this.sceneEl.appendChild(el);
         },
@@ -272,7 +271,7 @@
       });
     </script>
 
-    <a-scene runner-system background="color: #020617" fog="type: exponential; color: #020617; density: 0.03">
+    <a-scene runner-system background="color: #020617" fog="type: exponential; color: #020617; density: 0.015">
       <!-- Ground Grid to simulate floor -->
       <a-grid position="0 0.1 0" scale="2 2 2"></a-grid>
       
